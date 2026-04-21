@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Email</title>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/verify_email.css') }}"
+    />
+  </head>
+
+  <body>
+    <span class="tx-rune tl">AU·79<br />TRANSMUTE</span>
+    <span class="tx-rune tr">OTP·6D<br />VERIFY</span>
+    <span class="tx-rune bl">v2.1.0<br />SECURE</span>
+    <span class="tx-rune br">MAIL·OK<br />PENDING</span>
+
+    <div class="tx-card">
+      <div class="tx-inner">
+        <div class="tx-wordmark">Trans<em>m</em>ute</div>
+        <div class="tx-tagline">// email.verification → enter_otp</div>
+        <div class="tx-divider"></div>
+
+        <div class="tx-icon">
+          <div class="tx-icon-ring">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="2" y="4" width="20" height="16" rx="2" />
+              <path d="m2 7 10 7 10-7" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Shown by JS when email is needed -->
+        <div id="emailWrapper" style="display: none">
+          <label class="tx-label">Email Address</label>
+          <input
+            id="emailInput"
+            class="tx-input"
+            type="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+          />
+        </div>
+
+        <div id="msg"></div>
+
+        <div class="tx-field">
+          <label class="tx-label">Verification OTP</label>
+          <input
+            id="otpInput"
+            class="tx-input"
+            placeholder="000000"
+            autocomplete="one-time-code"
+            maxlength="6"
+            inputmode="numeric"
+          />
+        </div>
+
+        <button id="verifyBtn" class="tx-submit">
+          <span>Verify Email</span>
+        </button>
+
+        <button id="resendBtn" class="tx-link-btn">
+          didn't receive email? resend link
+        </button>
+
+        <div class="timer" id="timer"></div>
+      </div>
+    </div>
+
+    <!-- Resend Modal -->
+    <div id="resendModal">
+      <div class="tx-modal">
+        <div class="tx-modal-title">// resend_verification</div>
+
+        <label class="tx-label">Email Address</label>
+        <input
+          id="modalEmailInput"
+          class="tx-input"
+          type="email"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+
+        <div id="modalMsg"></div>
+
+        <div class="tx-modal-actions">
+          <button id="closeModalBtn" class="tx-btn-ghost">Cancel</button>
+          <button id="sendResendBtn" class="tx-btn-solid">Send Link</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.APP_CONFIG = {
+        loginUrl: "{{ url_for('Templates.login') }}",
+        downloadUrl: "{{ url_for('Templates.download') }}",
+        homeUrl: "{{ url_for('Templates.index') }}",
+      };
+    </script>
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/verify_email.js') }}"
+    ></script>
+  </body>
+</html>

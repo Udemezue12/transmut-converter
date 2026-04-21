@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}" />
+  </head>
+
+  <body>
+    <div class="page-wrap">
+      <div class="page-label">New account · Register</div>
+
+      <div class="step-dots">
+        <div class="dot active"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+
+      <div class="card">
+        <div class="header">
+          <div class="logo">Tran<em>s</em>mute</div>
+          <div class="tagline">// start uploading</div>
+        </div>
+
+        <div id="auth-response"></div>
+
+        <form id="register-form" novalidate>
+          <div class="section-label">Identity</div>
+
+          <div class="name-row">
+            <div class="field">
+              <label for="first_name">First Name</label>
+              <input id="first_name" name="first_name" type="text" placeholder="Ada" required
+                autocomplete="given-name" />
+            </div>
+            <div class="field">
+              <label for="last_name">Last Name</label>
+              <input id="last_name" name="last_name" type="text" placeholder="Lovelace" required
+                autocomplete="family-name" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="username">Username</label>
+            <input id="username" name="username" type="text" placeholder="ada_lovelace" required
+              autocomplete="username" />
+          </div>
+
+          <div class="section-label">Contact</div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="ada@example.com" required autocomplete="email" />
+          </div>
+
+          <div class="field">
+            <label for="phone_number">
+              Phone
+              <span style="
+                  opacity: 0.5;
+                  font-size: 0.55rem;
+                  text-transform: lowercase;
+                ">(optional)</span>
+            </label>
+            <input id="phone_number" name="phone_number" type="tel" placeholder="+1 555 000 0000" autocomplete="tel" />
+          </div>
+
+          <div class="section-label">Security</div>
+
+          <div class="field">
+            <label for="reg-password">Password</label>
+            <input id="reg-password" name="password" type="password" placeholder="min. 8 characters" required
+              autocomplete="new-password" />
+            <div class="strength-bar-track">
+              <div class="strength-bar" id="strength-bar"></div>
+            </div>
+            <div class="strength-label" id="strength-label"></div>
+          </div>
+
+          <div class="field">
+            <label for="reg-confirm">Confirm Password</label>
+            <input id="reg-confirm" name="confirm_password" type="password" placeholder="••••••••" required
+              autocomplete="new-password" />
+            <div class="match-indicator" id="confirm-match"></div>
+          </div>
+
+          <button type="submit" class="submit-btn" id="register-btn">
+            <span id="register-btn-text">Create Account</span>
+            <span class="btn-arrow">→</span>
+            <span class="spinner" id="spinner"></span>
+          </button>
+        </form>
+
+        <div class="footer">
+          Already have an account?
+          <a href="{{ url_for('Templates.login') }}">← Back to sign in</a>
+        </div>
+      </div>
+    </div>
+    <script>
+      window.APP_CONFIG = {
+        loginUrl: "{{ url_for('Templates.login') }}",
+        verifyEmail: "{{ url_for('Templates.verify_email') }}"
+
+      };
+    </script>
+
+    <script type="module" src="{{ url_for('static', filename='js/register.js') }}"></script>
+  </body>
+
+</html>

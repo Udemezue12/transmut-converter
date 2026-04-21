@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/login.css') }}"
+    />
+  </head>
+
+  <body>
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <div class="page-wrap">
+      <div class="page-label">Welcome back · Sign in</div>
+
+      <div class="card">
+        <div class="header">
+          <div class="logo">Tran<em>s</em>mute</div>
+          <div class="tagline">// your files, encrypted &amp; secured</div>
+        </div>
+
+        <div id="auth-response"></div>
+
+        <form id="login-form" novalidate>
+          <div class="field">
+            <label for="email">Email</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autocomplete="email"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="password">Password</label>
+            <div class="input-wrap">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                required
+              />
+              <button
+                type="button"
+                class="toggle-pw"
+                id="toggle-pw-btn"
+                aria-label="Toggle password visibility"
+              >
+                show
+              </button>
+            </div>
+          </div>
+
+          <div class="forgot-row">
+            <a href="{{ url_for('Templates.forgot_password') }}" class="forgot-link"
+              >forgot password?</a
+            >
+          </div>
+
+          <button type="submit" class="submit-btn" id="login-btn">
+            <span id="login-btn-text">Sign In</span>
+            <span class="btn-arrow">→</span>
+            <span class="spinner" id="login-spinner"></span>
+          </button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <div class="footer">
+          No account yet? <a href="{{ url_for('Templates.register') }}">Create one</a>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      window.APP_CONFIG = {
+        loginUrl: "{{ url_for('Templates.login') }}",
+        filesDashboard: "{{ url_for('Templates.files') }}",
+        homeUrl:"{{ url_for('Templates.index') }}"
+      };
+    </script>
+
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/login.js') }}"
+    ></script>
+  </body>
+</html>

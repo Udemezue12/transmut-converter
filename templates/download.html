@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transmute — Download</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/download.css') }}"
+    />
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <div class="page">
+      <header class="header">
+        <a href="/" class="logo">trans<span>mute</span></a>
+        <div class="header-right">
+          <a href="/upload" class="nav-link back">
+            <svg
+              width="11"
+              height="11"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M3 12h18M3 6h18M3 18h18" />
+            </svg>
+            New
+          </a>
+          <a href="{{ url_for('Templates.login') }}" class="nav-link">Log in</a>
+          <a href="{{ url_for('Templates.register') }}" class="nav-link primary"
+            >Sign up</a
+          >
+        </div>
+      </header>
+
+      <div class="status-panel" id="statusPanel"></div>
+      <div class="other-tasks" id="otherTasks" style="display: none"></div>
+      <div class="new-link">
+        <a href="{{ url_for('Templates.index') }}">Start a new conversion →</a>
+      </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/download.js') }}"></script>
+  </body>
+</html>

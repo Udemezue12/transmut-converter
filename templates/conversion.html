@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transmute — Convert</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      
+    </style>
+  </head>
+  <body>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="toast-container" id="toastContainer"></div>
+    <div class="loader-overlay" id="loaderOverlay">
+      <div class="spinner"></div>
+      <div class="loader-text" id="loaderText">Starting conversion...</div>
+      <div class="loader-sub" id="loaderSub">This may take a moment</div>
+    </div>
+
+    <div class="page">
+      <header class="header">
+        <a href="/" class="logo">trans<span>mute</span></a>
+        <div class="header-right">
+          <a href="{{ url_for('Templates.index') }}" class="back-link">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            Back
+          </a>
+          <a href="{{ url_for('Templates.login') }}" class="nav-link">Log in</a>
+          <a href="{{ url_for('Templates.register') }}" class="nav-link primary"
+            >Sign up</a
+          >
+        </div>
+      </header>
+
+      <div class="section-head">
+        <div class="section-label">Step 2 of 3 — Configure</div>
+        <h2>Choose output format</h2>
+        <p>Select the target format for each file, then hit convert.</p>
+      </div>
+
+      <div id="mainContent"></div>
+    </div>
+
+ 
+  </body>
+</html>

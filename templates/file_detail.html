@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>File Detail — Transmute — Upload</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/file_detail.css') }}"
+    />
+  </head>
+  <body>
+    <nav>
+      <div class="nav-left">
+        <span class="logo">Transmute — Upload</span>
+        <a href="{{ url_for('Templates.files') }}" class="back-link">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 4L6 8l4 4" />
+          </svg>
+          back to files
+        </a>
+      </div>
+      <div class="avatar" id="userAvatar">—</div>
+    </nav>
+
+    <div class="toast-wrap" id="toastWrap"></div>
+    <div class="modal-overlay" id="deleteModal">
+      <div class="modal">
+        <h3>Delete this file?</h3>
+        <p>This will permanently remove the upload and all its conversions. This cannot be undone.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-confirm-delete" onclick="confirmDelete()">Delete file</button>
+        </div>
+      </div>
+    </div>
+
+    <main class="shell">
+      <!-- HERO PANEL: original + converted side by side -->
+      <div class="file-hero" id="fileHero">
+
+        <div class="hero-panel original">
+          <div class="hero-tag orig">
+            <span class="hero-tag-dot"></span>original
+          </div>
+          <div class="hero-icon t-doc skeleton" id="origIcon" style="width:52px;height:52px"></div>
+          <div class="hero-filename skeleton" id="origName" style="height:24px;width:70%;margin-bottom:8px;margin-top:10px"></div>
+          <div class="skeleton" id="origMime" style="height:14px;width:40%"></div>
+          <table class="meta-table" id="origMeta"></table>
+        </div>
+
+        <!-- ↑ CHANGE 1: added id="convPanel" below -->
+        <div class="hero-panel converted" id="convPanel">
+          <div class="hero-tag conv">
+            <span class="hero-tag-dot"></span>conversion
+          </div>
+          <div class="hero-icon t-doc skeleton" id="convIcon" style="width:52px;height:52px"></div>
+          <div class="hero-filename skeleton" id="convName" style="height:24px;width:60%;margin-bottom:8px;margin-top:10px"></div>
+          <div class="skeleton" id="convStatus" style="height:14px;width:35%"></div>
+          <table class="meta-table" id="convMeta"></table>
+        </div>
+
+      </div>
+
+      <!-- ↑ CHANGE 2: wrapped in <section id="convListSection"> -->
+      <section id="convListSection">
+        <h2 class="section-title">All <em>conversions</em></h2>
+        <div id="convList">
+          <div style="color:var(--text-faint);font-size:13px;font-family:'DM Mono',monospace">
+            Loading…
+          </div>
+        </div>
+      </section>
+
+      <!-- DANGER ZONE -->
+      <div class="danger-zone">
+        <div>
+          <h4>Delete this upload</h4>
+          <p>Permanently removes the file and all associated conversions from your account.</p>
+        </div>
+        <button class="btn-delete" onclick="openModal()">Delete upload</button>
+      </div>
+    </main>
+
+    <script>
+      window.APP_CONFIG = {
+        loginUrl: "{{ url_for('Templates.login') }}",
+        filesUrl: "{{ url_for('Templates.files') }}",
+      };
+    </script>
+    <script type="module" src="{{ url_for('static', filename='js/file_detail.js') }}"></script>
+  </body>
+</html>

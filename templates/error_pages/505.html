@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>400 — Bad Request</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link href="https://fonts.googleapis.com/css2?family=Syne+Mono&family=Syne:wght@400;700&display=swap"
+            rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/errors.css') }}">
+    </head>
+
+    <body>
+
+        <nav>
+            <a href="{{ url_for('Templates.index') }}" class="logo">Transmute — Upload</a>
+            <button class="back-btn" onclick="goBack()">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <path d="M10 4L6 8l4 4" />
+                </svg>
+                Go back
+            </button>
+        </nav>
+
+        <div class="err-shell">
+            <div class="err-card">
+                <div class="err-code">505</div>
+                <div class="err-divider"></div>
+                <div class="err-label">HTTP VERSION NOT SUPPORTED</div>
+                <!-- <h1 class="err-title">We couldn't find the page you were looking for</h1> -->
+                <!-- <p class="err-desc">
+      The page .
+    </p> -->
+                <div class="err-actions">
+                    <a href="{{ url_for('Templates.index') }}" class="btn-primary">← Go home</a>
+                    <button class="btn-ghost" onclick="goBack()">Try again</button>
+                </div>
+            </div>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/errors.js') }}"></script>
+    </body>
+
+</html>

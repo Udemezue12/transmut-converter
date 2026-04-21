@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Transmute</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/files_dashboard.css') }}"
+    />
+  </head>
+  <body>
+    <!-- NAV -->
+    <nav>
+      <span class="logo">Transmute — Upload</span>
+      <div class="nav-actions">
+        <div class="nav-user">
+          <div class="avatar" id="navAvatar">—</div>
+          <span id="navEmail">—</span>
+        </div>
+        <button class="btn-logout" onclick="handleLogout()">Log out</button>
+      </div>
+    </nav>
+
+    <!-- TOAST -->
+    <div class="toast-wrap" id="toastWrap"></div>
+
+    <!-- DELETE MODAL -->
+    <div class="modal-overlay" id="deleteModal">
+      <div class="modal">
+        <h3>Confirm deletion</h3>
+        <p id="deleteWarning">This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-confirm-delete" onclick="confirmDelete()">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <main class="shell">
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">My <em>files</em></h1>
+          <p class="page-sub">
+            Uploads &amp; their converted outputs, side by side. Click either
+            panel to view details.
+          </p>
+        </div>
+        <a href="{{ url_for('Templates.index') }}" class="btn-upload">
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <path d="M8 2v9M4 6l4-4 4 4" />
+            <path d="M2 13h12" />
+          </svg>
+          New upload
+        </a>
+      </div>
+
+      <!-- STATS -->
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-label">total conversions</div>
+          <div class="stat-value" id="statUploads">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">completed</div>
+          <div class="stat-value" id="statDone">—</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">current page</div>
+          <div class="stat-value" id="statPage">1 <span>/ —</span></div>
+        </div>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div class="filter-tabs">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="completed">Completed</button>
+          <button class="tab" data-filter="pending">Pending</button>
+          <button class="tab" data-filter="failed">Failed</button>
+        </div>
+        <span class="page-info" id="pageInfo">Loading…</span>
+      </div>
+
+      <!-- FILE LIST -->
+      <div id="fileList">
+        <div class="empty">
+          <div class="empty-icon">◌</div>
+          <h3>Loading your files…</h3>
+        </div>
+      </div>
+
+      <!-- PAGINATION -->
+      <div class="pagination" id="pagination"></div>
+    </main>
+
+    <script
+      type="module"
+      src="{{ url_for('static', filename='js/file_dashboard.js') }}"
+    ></script>
+  </body>
+</html>
