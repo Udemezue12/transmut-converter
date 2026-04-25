@@ -27,9 +27,9 @@ app.secret_key = settings.SECRET_KEY
 
 QuartSchema(
     app,
-    # swagger_ui_path=None,
-    # redoc_ui_path=None,
-    # openapi_path=None,
+    swagger_ui_path=None,
+    redoc_ui_path=None,
+    openapi_path=None,
     info={"title": "File Converter", "version": "1.0.0"},
 )
 
