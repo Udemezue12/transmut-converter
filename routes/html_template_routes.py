@@ -33,35 +33,35 @@ class TemplatesRoutes:
         return await render_template("download.html")
 
     @staticmethod
-    @router.get("/register")
+    @router.get("/trans/register")
     @tag(["Templates"])
     @rate_limiter_manager.limit(times=5, seconds=10)
     async def register():
         return await render_template("register.html")
 
     @staticmethod
-    @router.get("/login")
+    @router.get("/trans/login")
     @rate_limiter_manager.limit(times=5, seconds=10)
     @tag(["Templates"])
     async def login():
         return await render_template("login.html")
 
     @staticmethod
-    @router.get("/verify-email")
+    @router.get("/trans/verify-email")
     @rate_limiter_manager.limit(times=5, seconds=10)
     @tag(["Templates"])
     async def verify_email():
         return await render_template("verify_email.html")
 
     @staticmethod
-    @router.get("/forgot-password")
+    @router.get("/trans/forgot-password")
     @rate_limiter_manager.limit(times=5, seconds=10)
     @tag(["Templates"])
     async def forgot_password():
         return await render_template("forgot_password.html")
 
     @staticmethod
-    @router.get("/reset-password")
+    @router.get("/trans/reset-password")
     @rate_limiter_manager.limit(times=5, seconds=10)
     @tag(["Templates"])
     async def reset_password():

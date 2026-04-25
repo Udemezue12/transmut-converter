@@ -26,8 +26,8 @@
         <div class="logo">trans<span>mute</span></div>
         <div class="header-right">
           
-          <a href="{{ url_for('Templates.login') }}" class="nav-link" id="loginLink">Log in</a>
-          <a href="{{ url_for('Templates.register') }}" class="nav-link primary" id="signupLink">Sign up free</a>
+          <!-- <a href="{{ url_for('Templates.login') }}" class="nav-link" id="loginLink">Log in</a>
+          <a href="{{ url_for('Templates.register') }}" class="nav-link primary" id="signupLink">Sign up free</a> -->
 
           
           <a href="{{ url_for('Templates.files') }}" class="nav-link" id="myFilesLink" style="display:none;">My Files</a>
@@ -104,7 +104,7 @@
     </div>
     <script>
       window.APP_CONFIG = {
-        loginUrl: "{{ url_for('Templates.login') }}",
+        //loginUrl: "{{ url_for('Templates.login') }}",
         downloadUrl: "{{ url_for('Templates.download') }}",
         homeUrl: "{{ url_for('Templates.index') }}"
       };

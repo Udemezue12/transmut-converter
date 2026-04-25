@@ -3,7 +3,6 @@ FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# System deps
 RUN apt-get update && apt-get install -y \
     gcc \
     libpq-dev \
@@ -12,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     libproj-dev \
     gdal-bin \
     supervisor \
+    libmagic1 \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app

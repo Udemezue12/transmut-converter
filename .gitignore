@@ -26,4 +26,5 @@ astro.db
 celerybeat-schedule
 celerybeat-schedule-shm
 celerybeat-schedule-wal
+project_media
 /alembic/versions/__pycache__/

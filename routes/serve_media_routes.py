@@ -18,13 +18,13 @@ class ServeMediaRoutes:
     @staticmethod
     @router.get("/media/converted/<filename>")
     @tag(["Download or Preview File"])
-    @rate_limiter_manager.limit(times=3, seconds=10)
+    @rate_limiter_manager.limit(times=6, seconds=10)
     async def serve_converted_file(filename: str):
         return await ServeMediaService().serve_converted_file(filename, request)
 
     @staticmethod
     @router.get("/media/preview/<filename>")
     @tag(["Download or Preview File"])
-    @rate_limiter_manager.limit(times=3, seconds=10)
+    @rate_limiter_manager.limit(times=6, seconds=10)
     async def preview_file(filename: str):
         return await ServeMediaService().preview_file(request, filename)

@@ -38,10 +38,15 @@ MIME_TO_CONTENT_TYPE = {
     "mov": "video/quicktime",
     "png": "image/png",
     "jpg": "image/jpeg",
+    "jpeg": "image/jpeg",
     "webp": "image/webp",
     "mp3": "audio/mpeg",
     "wav": "audio/wav",
     "ogg": "audio/ogg",
+    "bmp": "image/bmp",
+    "tiff": "image/tiff",
+    "ico": "image/x-icon",
+    "gif": "image/gif"
 }
 MIME_TO_OUTPUT_FORMAT = {
     "application/pdf": OutputFormat.PDF,
@@ -49,13 +54,17 @@ MIME_TO_OUTPUT_FORMAT = {
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": OutputFormat.DOCX,
     "text/plain": OutputFormat.TXT,
     "text/html": OutputFormat.HTML,
-    "application/epub+zip": OutputFormat.EPUB,
+    # "application/epub+zip": OutputFormat.EPUB,
     "video/mp4": OutputFormat.MP4,
     "video/webm": OutputFormat.WEBM,
     "video/x-msvideo": OutputFormat.AVI,
     "video/quicktime": OutputFormat.MOV,
     "image/png": OutputFormat.PNG,
-    "image/jpeg": OutputFormat.JPG,
+    "image/jpeg": OutputFormat.JPEG,
+    "image/jpg": OutputFormat.JPG,
+    "image/bmp": OutputFormat.BMP,
+    "image/tiff": OutputFormat.TIFF,
+    "image/ico": OutputFormat.ICO,
     "image/webp": OutputFormat.WEBP,
     "audio/mpeg": OutputFormat.MP3,
     "audio/wav": OutputFormat.WAV,
@@ -67,7 +76,7 @@ ALLOWED_CONVERSIONS: dict[FileType, list[OutputFormat]] = {
         OutputFormat.DOCX,
         OutputFormat.TXT,
         OutputFormat.HTML,
-        OutputFormat.EPUB
+        # OutputFormat.EPUB
     ],
     FileType.VIDEO: [
         OutputFormat.MP4,
@@ -138,8 +147,22 @@ def detect_v3(file_bytes: bytes, filename: str) -> tuple[str, FileType, list[str
     return mime, file_type, allowed
 
 
+def get_mime_from_output_format_v1(output_format: OutputFormat) -> str:
+    key = output_format.value.lower()
+    mime = MIME_TO_CONTENT_TYPE.get(key)
+
+    if not mime:
+        raise ValueError(f"No MIME mapping for output format: {output_format}")
+
+    return mime
+
 def get_mime_from_output_format(output_format: OutputFormat) -> str:
     key = output_format.value.lower()
+
+
+    if key == "jpeg":
+        key = "jpg"
+
     mime = MIME_TO_CONTENT_TYPE.get(key)
 
     if not mime:

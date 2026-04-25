@@ -22,6 +22,11 @@ class ImageConverter:
             OutputFormat.JPG: "JPEG",
             OutputFormat.JPEG: "JPEG",
             OutputFormat.WEBP: "WEBP",
+            OutputFormat.GIF: "GIF",
+            OutputFormat.BMP: "BMP",
+            OutputFormat.TIFF: "TIFF",
+            OutputFormat.ICO: "ICO",
+            
         }
 
         pil_fmt = fmt_map.get(output_format)

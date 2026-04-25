@@ -29,7 +29,7 @@ class OutputFormat(str, Enum):
     DOCX = "docx"
     TXT = "txt"
     HTML = "html"
-    EPUB = "epub"
+    # EPUB = "epub"
 
     MP4 = "mp4"
     AVI = "avi"

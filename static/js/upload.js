@@ -1,5 +1,15 @@
 import { getCSRFToken } from "./csrf.js";
-
+import { apiFetch } from "./apifetch.js";
+import { getCookie } from "./cookies.js";
+import { getAuthHeaders } from "./authHeaders.js";
+import {
+  startConversions,
+  waitForAllTasks,
+  downloadFile,
+  downloadQueue,
+  handleRedirectAfterDownload,
+  delay,
+} from "./startConversionAndDownload.js";
 const MAX_FILE_SIZE = 100 * 1024 * 1024,
   MAX_FILES = 10;
 let fileList = [],
@@ -7,25 +17,8 @@ let fileList = [],
   selectedFormats = {},
   detectionDone = false;
 
-function getCookie(n) {
-  const m = document.cookie.match(
-    new RegExp(
-      "(?:^|; )" + n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "=([^;]*)",
-    ),
-  );
-  return m ? decodeURIComponent(m[1]) : null;
-}
-async function getAuthHeaders() {
-  const csrf = await getCSRFToken();
-  const token = getCookie("access_token");
 
-  const headers = {};
-  if (csrf) headers["X-CSRF-Token"] = csrf;
-  console.log(token);
-  if (token) headers["Authorization"] = "Bearer " + token;
 
-  return headers;
-}
 function getExt(fn) {
   return (
     ((fn || "").split(".").pop() || "").toUpperCase().slice(0, 6) || "FILE"
@@ -50,29 +43,7 @@ function showToast(msg, type = "info") {
     setTimeout(() => t.remove(), 300);
   }, 3500);
 }
-async function refreshAccessToken() {
-  try {
-    const resp = await fetch("/api/v1/auth/refresh", {
-      method: "POST",
-      credentials: "include",
-      headers: await getAuthHeaders(),
-    });
 
-    if (resp.status === 401) {
-      showToast("Session expired. Please log in again.", "error");
-      setTimeout(() => {
-        window.location.href = window.APP_CONFIG.loginUrl;
-      }, 1500);
-      return false;
-    }
-
-    if (!resp.ok) return false;
-
-    return true;
-  } catch {
-    return false;
-  }
-}
 function showError(msg) {
   const p = document.getElementById("errorPanel");
   p.textContent = msg;
@@ -312,26 +283,7 @@ document.getElementById("fileInput").addEventListener("change", (e) => {
   addFiles(e.target.files);
   e.target.value = "";
 });
-async function apiFetch(url, options = {}) {
-  options.credentials = "include";
 
-  const authHeaders = await getAuthHeaders();
-  options.headers = { ...authHeaders, ...(options.headers || {}) };
-
-  let resp = await fetch(url, options);
-
-  if (resp.status === 401) {
-    const refreshed = await refreshAccessToken();
-    if (!refreshed) return resp;
-
-    const newHeaders = await getAuthHeaders();
-    options.headers = { ...newHeaders, ...(options.headers || {}) };
-
-    resp = await fetch(url, options);
-  }
-
-  return resp;
-}
 async function uploadAndDetect() {
   if (!fileList.length) return;
 
@@ -406,85 +358,46 @@ async function uploadAndDetect() {
   }
 }
 
+
 async function proceedToConversion() {
+  // ✅ validation
   const missing = detectedData.findIndex(
     (f, i) => (f.allowed_formats || []).length > 0 && !selectedFormats[i],
   );
+
   if (missing !== -1) {
     showError("Please select an output format for every file.");
     return;
   }
+
   const overlay = document.getElementById("loaderOverlay");
-  document.getElementById("loaderText").textContent = "Starting conversion...";
-  document.getElementById("loaderSub").textContent = "Preparing your files";
+
+  document.getElementById("loaderText").textContent = "Starting conversions...";
+  document.getElementById("loaderSub").textContent = "Please wait...";
   overlay.classList.add("show");
+
   try {
-    for (let i = 0; i < detectedData.length; i++) {
-      const file = detectedData[i];
-      const outputFmt = selectedFormats[i];
+    // 🔥 STEP 1: Start all tasks
+    const tasks = await startConversions(detectedData, selectedFormats);
 
-      // Skip files with no available conversion formats
-      if ((file.allowed_formats || []).length === 0) {
-        continue;
-      }
-
-      const resp = await apiFetch("/api/v1/start/conversion", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          temp_file_id: file.temp_file_id,
-          mime: file.mime,
-          file_type: file.file_type,
-          output_format: outputFmt,
-          filename: file.filename,
-        }),
-      });
-
-      const result = await resp.json();
-      if (!resp.ok) {
-        throw new Error(result.error || `Failed to convert ${file.filename}`);
-      }
-
-      // Use the filename returned from the conversion response
-      const convertedFilename = result.filename;
-
-      showToast("Conversion started successfully", "success");
-
-      setTimeout(
-        async () => {
-          try {
-            const resp = await apiFetch(
-              `/api/v1/media/converted/${encodeURIComponent(convertedFilename)}`,
-            );
-
-            if (!resp.ok)
-              throw new Error("Download failed or Conversion not ready");
-
-            const blob = await resp.blob();
-            const url = window.URL.createObjectURL(blob);
-
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = convertedFilename;
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-
-            window.URL.revokeObjectURL(url);
-          } catch (err) {
-            console.error(err);
-          }
-        },
-        (i + 1) * 800,
-      );
+    if (!tasks.length) {
+      throw new Error("No valid files to convert");
     }
-    setTimeout(
-      () => {
-        overlay.classList.remove("show");
-        window.location.href = window.APP_CONFIG.homeUrl;
-      },
-      (detectedData.length + 2) * 800,
-    );
+
+    showToast("Conversions started...", "info");
+
+    // 🔥 STEP 2: Poll ALL tasks (parallel)
+    const completedFiles = await waitForAllTasks(tasks);
+
+    showToast("All conversions completed", "success");
+
+    
+    await downloadQueue(completedFiles, showToast);
+
+    showToast("All downloads completed", "success");
+
+    
+    handleRedirectAfterDownload();
   } catch (err) {
     overlay.classList.remove("show");
     showError(err.message || "Conversion failed");
@@ -503,32 +416,31 @@ async function checkAuth() {
     return false;
   }
 }
-async function toggleAuthUI() {
-  const isLoggedIn = await checkAuth();
+// async function toggleAuthUI() {
+//   const isLoggedIn = await checkAuth();
 
-  const loginLink = document.getElementById("loginLink");
-  const signupLink = document.getElementById("signupLink");
-  const logoutLink = document.getElementById("logoutLink");
-  const myFilesLink = document.getElementById("myFilesLink");
+//   const loginLink = document.getElementById("loginLink");
+//   const signupLink = document.getElementById("signupLink");
+//   const logoutLink = document.getElementById("logoutLink");
+//   const myFilesLink = document.getElementById("myFilesLink");
 
-  if (isLoggedIn) {
-    loginLink.style.display = "none";
-    signupLink.style.display = "none";
+//   if (isLoggedIn) {
+//     loginLink.style.display = "none";
+//     signupLink.style.display = "none";
 
-    logoutLink.style.display = "inline-flex";
-    myFilesLink.style.display = "inline-flex";
-  } else {
-    loginLink.style.display = "inline-flex";
-    signupLink.style.display = "inline-flex";
+//     logoutLink.style.display = "inline-flex";
+//     myFilesLink.style.display = "inline-flex";
+//   } else {
+//     loginLink.style.display = "inline-flex";
+//     signupLink.style.display = "inline-flex";
 
-    logoutLink.style.display = "none";
-    myFilesLink.style.display = "none";
-  }
-}
+//     logoutLink.style.display = "none";
+//     myFilesLink.style.display = "none";
+//   }
+// }
 document.addEventListener("DOMContentLoaded", async () => {
-  await toggleAuthUI();
+  // await toggleAuthUI();
 
-  
   document.getElementById("fileQueue").addEventListener("click", (e) => {
     if (e.target.classList.contains("fmt-btn")) {
       const idx = parseInt(e.target.dataset.idx);

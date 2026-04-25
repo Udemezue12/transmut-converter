@@ -15,6 +15,6 @@ class CsrfTokenRoutes:
     @staticmethod
     @router.get("/csrf_token")
     @tag(["CSRF TOKEN"])
-    @rate_limiter_manager.limit(times=3, seconds=10)
+    # @rate_limiter_manager.limit(times=5, seconds=10)
     def get_csrf_token():
         return get_csrf_token()

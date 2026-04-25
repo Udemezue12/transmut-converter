@@ -358,14 +358,14 @@ class DocumentConverter:
 
             if output_format == OutputFormat.HTML:
                 return cls.txt_to_html(content)
-            if output_format == OutputFormat.EPUB:
-                return cls.txt_to_epub(content)
+            # if output_format == OutputFormat.EPUB:
+            #     return cls.txt_to_epub(content)
 
         if "pdf" in mime or "application/pdf" in mime:
             if output_format == OutputFormat.TXT:
                 return cls.pdf_to_txt(content)
-            if output_format == OutputFormat.EPUB:
-                return cls.pdf_to_epub(content)
+            # if output_format == OutputFormat.EPUB:
+            #     return cls.pdf_to_epub(content)
             if output_format == OutputFormat.HTML:
                 return cls.pdf_to_html(content)
             if output_format == OutputFormat.DOCX:
@@ -379,8 +379,8 @@ class DocumentConverter:
                 return cls.docx_to_pdf(content)
             if output_format == OutputFormat.HTML:
                 return cls.docx_to_html(content)
-            if output_format == OutputFormat.EPUB:
-                return cls.docx_to_epub(content)
+            # if output_format == OutputFormat.EPUB:
+            #     return cls.docx_to_epub(content)
         if "application/epub+zip" in mime:
             if output_format == OutputFormat.TXT:
                 return cls.epub_to_txt(content)
@@ -396,8 +396,8 @@ class DocumentConverter:
                 return cls.html_to_txt(content)
             if output_format == OutputFormat.PDF:
                 return cls.html_to_pdf(content)
-            if output_format == OutputFormat.EPUB:
-                return cls.html_to_epub(content)
+            # if output_format == OutputFormat.EPUB:
+            #     return cls.html_to_epub(content)
             if output_format == OutputFormat.DOCX:
                 return cls.html_to_docx(content)
 

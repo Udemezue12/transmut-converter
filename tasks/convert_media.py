@@ -6,7 +6,7 @@ from pathlib import Path
 
 import httpx
 from celery import shared_task
-
+from core.urrlib import sanitize_filename
 from core.get_db import SyncSessionLocal
 from core.media_settings import MEDIA_DIR
 from core.redis_client import redis_client
@@ -66,7 +66,7 @@ def convert_task(
 
         converted = convert_bytes(file_bytes, mime, ft, output_fmt)
 
-        filename_no_ext = Path(filename).stem
+        filename_no_ext = sanitize_filename(Path(filename).stem)
         final_filename = f"{filename_no_ext}.{output_fmt.value}"
 
         output_path = MEDIA_DIR / final_filename
@@ -99,16 +99,13 @@ def convert_task(
             "output_format": output_fmt.value,
             "filename": final_filename,
             "mime": mime_type,
-            "download_url": f"{BASE_URL}/api/v1/download/{final_filename}?mime_type={mime_type}",
-            "view_url": f"{BASE_URL}/api/v1/preview/{final_filename}?mime_type={mime_type}",
+            "download_url": f"{BASE_URL}/api/v1/media/converted/{final_filename}?mime_type={mime_type}",
+            "view_url": f"{BASE_URL}/api/v1/media/preview/{final_filename}?mime_type={mime_type}"
         }
 
     except Exception as e:
         temp_path.unlink(missing_ok=True)
-        return {
-            "error": str(e),
-            "status": TaskStatus.FAILED
-        }
+        raise Exception(str(e)) 
 
     finally:
 

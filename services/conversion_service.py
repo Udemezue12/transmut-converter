@@ -4,7 +4,7 @@ from pathlib import Path
 from celery import chord
 from celery.result import AsyncResult
 from quart import Request, jsonify, redirect
-
+from core.urrlib import sanitize_filename
 from celery_worker.celery_app import app as task_app
 from core.media_settings import TEMP_DIR
 from models.enums import TaskStatus
@@ -121,7 +121,7 @@ class ConversionService:
                     "error": "Temp file not found — please re-upload",
                 }
             ), 400
-        filename_stem = Path(data.filename).stem
+        filename_stem = sanitize_filename(Path(data.filename).stem)
         converted_filename = f"{filename_stem}.{data.output_format.value}"
 
         if user_id:
@@ -162,6 +162,8 @@ class ConversionService:
 
     async def get_result(self, task_id: str):
         result = AsyncResult(task_id, app=task_app)
+        if not result:
+            return jsonify({"error": "Task not found"}), 404
 
         if result.state == TaskStatus.PENDING:
             return jsonify(
