@@ -1,6 +1,5 @@
 import uuid
 
-
 from quart import jsonify
 
 from core.cache import Cache
@@ -12,22 +11,24 @@ from core.paginate import PaginatePage
 from core.serialize_response import SerializeResponse
 from models.enums import ConversionStatus, OutputFormat
 from repos.conversion_repo import ConvertedRepo
+from repos.upload_repo import UploadRepo
 from schemas.schema import UserFileConvertedUploadSchema
+
+from .tasks_queue import TaskQueue
 
 
 class ConvertedFileService:
     def __init__(self, db):
+        self.db = db
+        self.tasks_queue = TaskQueue()
         self.converted_repo = ConvertedRepo(db)
-        
+        self.upload_repo = UploadRepo(db)
         self.cloudinary = CloudinaryService()
         self.file_hash = ComputeFileHash()
         self.cache = Cache()
         self.serialize = SerializeResponse()
         self.paginate = PaginatePage()
         self.mapper = ORMMapper()
-        
-
-    
 
     async def get_user_conversion(self, converted_id: uuid.UUID, current_user):
         if not current_user:
@@ -35,7 +36,7 @@ class ConvertedFileService:
         user_id = current_user.id
         cache_key = f"user_conversion:{user_id}:{converted_id}"
         cached = await self.cache.get(cache_key)
-        
+
         if cached:
             return orjson_repo.loads(cached)
         upload = await self.converted_repo.get_user_conversion(user_id, converted_id)
@@ -47,7 +48,6 @@ class ConvertedFileService:
         await self.cache.set(cache_key, orjson_repo.dumps(result), 3600)
         return schema_obj
 
-   
     async def get_user_file_conversions(self, current_user, page: int = 1, per_page: int = 20):
         if not current_user:
             return jsonify({"error": "Not Authenticated"}), 401
@@ -55,10 +55,10 @@ class ConvertedFileService:
         cache_key = f"user_conversions:{user_id}:{page}:{per_page}"
         cached = await self.cache.get(cache_key)
         if cached:
-           print(f"Cached::{cached}")
-           return orjson_repo.loads(cached)
+            print(f"Cached::{cached}")
+            return orjson_repo.loads(cached)
         uploads = await self.converted_repo.get_all_user_file_conversions(user_id, page, per_page)
-        
+
         schema_obj = self.mapper.many(uploads, UserFileConvertedUploadSchema)
 
         result = self.serialize.get_list_json_dumps(schema_obj)
@@ -73,8 +73,6 @@ class ConvertedFileService:
             return "video"
         else:
             return "raw"
-
-    
 
     def handle_converted_upload(
         self,
@@ -96,9 +94,9 @@ class ConvertedFileService:
                 file_path=str(file_path),
                 resource_type=resource_type,
                 folder="uploads/converted",
-                original_filename= original_filename
+                original_filename=original_filename
 
-                
+
             )
             file_url = str(cloud_result["url"])
             public_id = str(cloud_result["public_id"])
@@ -127,20 +125,39 @@ class ConvertedFileService:
                 self.cloudinary.delete_file(public_id, resource_type)
             print(f"Error: {e}")
 
-    # async def delete_upload(self, upload_id: uuid.UUID, current_user):
-    #     upload_uuid = uuid.UUID(upload_id)
-    #     if not current_user:
-    #         return jsonify({"error": "Not Authenticated"}), 401
-    #     user_id = current_user.id
-    #     upload = await self.upload_repo.get_user_upload(user_id, upload_uuid)
-    #     if not upload:
-    #         return jsonify({"error": "Upload not found"}), 404
-    #     try:
-    #         await self.cloudinary.delete_async_file(
-    #             upload.cloudinary_public_id, upload.cloudinary_file_resource_type
-    #         )
-    #         await self.upload_repo.delete_uploads(upload_uuid, user_id)
-    #         return jsonify({"message": "Upload deleted successfully"})
-    #     except Exception as e:
-    #         print(f"Error deleting upload: {e}")
-    #         return jsonify({"error": "Failed to delete upload"}), 500
+    async def delete_converted(
+        self,
+        converted_id: uuid.UUID,
+        current_user,
+    ):
+        if not current_user:
+            return {"error": "Not authenticated"}, 401
+
+        user_id = current_user.id
+
+        async with self.db.begin():
+
+            converted = await self.converted_repo.get_user_conversion(
+                user_id, converted_id
+            )
+
+            if not converted:
+                return {"error": "Not found"}, 404
+
+            if converted.status in [ConversionStatus.PENDING, ConversionStatus.PROCESSING]:
+                return {
+                    "error": "Cannot delete conversion in progress"
+                }, 400
+
+            if converted.deleted_at:
+                return {"message": "Already deleted"}, 200
+
+            await self.converted_repo.soft_delete(converted.id)
+
+        if converted.result_cloudinary_public_id:
+            self.tasks_queue.enqueue_cloudinary_delete(
+                str(converted.result_cloudinary_public_id), str(
+                    converted.result_cloudinary_resource_type)
+            )
+
+        return {"message": "Deleted successfully"}

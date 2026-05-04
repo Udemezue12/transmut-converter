@@ -10,7 +10,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     String,
-    Text,
+
     func,
     UniqueConstraint
 )
@@ -34,7 +34,8 @@ class User(Base):
 
     last_name: Mapped[str] = mapped_column(EncryptedString, nullable=False)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(EncryptedString, unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(
+        EncryptedString, unique=True, nullable=False)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     phone_number: Mapped[Optional[str]] = mapped_column(
         String(20), nullable=True)
@@ -92,7 +93,7 @@ class BlacklistedToken(Base):
 
 class Upload(Base):
     __tablename__ = "uploads"
-    
+
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, nullable=False
     )
@@ -131,32 +132,32 @@ class Upload(Base):
 class Conversion(Base):
     __tablename__ = "conversions"
     __table_args__ = (
-        UniqueConstraint("upload_id", "output_format", name="uq_upload_output"),
+        UniqueConstraint("upload_id", "output_format",
+                         name="uq_upload_output"),
+        Index("idx_conversion_user_lookup", "id", "upload_id"),
     )
 
     id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, index=True, default=uuid.uuid4
-    )
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+
     upload_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("uploads.id", ondelete="CASCADE"), nullable=False
+        UUID(as_uuid=True),
+        ForeignKey("uploads.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
     )
-    output_format: Mapped[Enum] = mapped_column(
-        Enum(OutputFormat), nullable=False)
+
     status: Mapped[Enum] = mapped_column(
-        Enum(ConversionStatus), default=ConversionStatus.PENDING
-    )
-    celery_task_id: Mapped[str] = mapped_column(String(255), nullable=True)
+        Enum(ConversionStatus), default=ConversionStatus.PENDING)
+
     result_cloudinary_public_id: Mapped[str] = mapped_column(
         EncryptedString(255), nullable=True)
-    result_cloudinary_file_hash: Mapped[str] = mapped_column(
-        String(255), nullable=True)
-    result_cloudinary_url: Mapped[str] = mapped_column(
-        EncryptedString(512), nullable=True
-    )
-    error_message: Mapped[str] = mapped_column(Text, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime, default=datetime.utcnow)
-    completed_at: Mapped[datetime] = mapped_column(
+    completed_at: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
+    deleted_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=True, index=True)
 
     upload: Mapped["Upload"] = relationship(

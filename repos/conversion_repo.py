@@ -1,7 +1,7 @@
 import uuid
 from typing import Optional
 from datetime import datetime
-from sqlalchemy import delete, select
+from sqlalchemy import delete, select, update
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import selectinload
 
@@ -21,6 +21,7 @@ class ConvertedRepo:
             .options(selectinload(Conversion.upload))
         )
         return result.scalar_one_or_none()
+
     def sync_get_user_conversion(self, user_id: uuid.UUID, upload_id: uuid.UUID) -> Optional[Conversion]:
         result = self.db.execute(
             select(Conversion)
@@ -29,7 +30,6 @@ class ConvertedRepo:
             .options(selectinload(Conversion.upload))
         )
         return result.scalar_one_or_none()
-   
 
     async def get_all_user_conversions(
         self, user_id: uuid.UUID, upload_id: uuid.UUID, page: int = 1, per_page=20
@@ -37,13 +37,14 @@ class ConvertedRepo:
         result = await self.db.execute(
             select(Conversion)
             .join(Conversion.upload)
-            .where(Upload.user_id == user_id,Conversion.upload_id == upload_id)
+            .where(Upload.user_id == user_id, Conversion.upload_id == upload_id)
             .options(selectinload(Conversion.upload))
             .order_by(Conversion.completed_at.desc())
             .offset((page - 1) * per_page)
             .limit(per_page)
         )
         return result.scalars().all()
+
     async def get_all_user_file_conversions(
         self, user_id: uuid.UUID,  page: int = 1, per_page=20
     ) -> list[Conversion]:
@@ -63,12 +64,12 @@ class ConvertedRepo:
         upload_id: uuid.UUID,
         output_format: OutputFormat,
         status: ConversionStatus,
-        celery_task_id:str, 
-        error_message:str,
+        celery_task_id: str,
+        error_message: str,
         result_cloudinary_public_id: str,
         result_cloudinary_file_hash: str,
         result_cloudinary_file_url: str,
-        
+
     ):
         try:
             upload = Conversion(
@@ -84,19 +85,34 @@ class ConvertedRepo:
             )
             self.db.add(upload)
             self.db.commit()
-            
+
         except SQLAlchemyError:
             self.db.rollback()
             raise
 
-    async def delete_uploads(self, converted_id: uuid.UUID):
+    async def delete_converted(self, converted_id: uuid.UUID):
         try:
-            await self.db.execute(
+            self.db.execute(
                 delete(Conversion).where(Conversion.id == converted_id)
             )
-            await self.db.commit()
+            self.db.commit()
+        except SQLAlchemyError:
+            self.db.rollback()
+            raise
+
+    async def soft_delete(self, conversion_id: uuid.UUID):
+        try:
+            result = await self.db.execute(
+                update(Conversion)
+                .where(Conversion.id == conversion_id, Conversion.deleted_at.is_(None))
+                .values(deleted_at=datetime.utcnow())
+            )
+
+            if result.rowcount == 0:
+                raise ValueError("Conversion not found or already deleted")
         except SQLAlchemyError:
             await self.db.rollback()
             raise
+
     def db_rollback(self):
         self.db.rollback()

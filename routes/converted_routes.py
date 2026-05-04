@@ -9,9 +9,7 @@ from core.get_db import get_db_async
 from core.safe_handler import safe_handler
 from core.throttling import rate_limiter_manager
 from models.models import User
-from schemas.schema import (
-    UserFileConvertedUploadSchema
-)
+from schemas.schema import UserFileConvertedUploadSchema
 from services.converted_service import ConvertedFileService as ConvertedService
 
 router = Blueprint("Converted File Uploads", __name__, url_prefix="/api/v1")
@@ -48,13 +46,13 @@ class ConvertedRoutes:
                 current_user, page, per_page
             )
 
-    # @staticmethod
-    # @router.delete("/uploaded/<upload_id>/delete")
-    # @tag(["File Uploads"])
-    # @safe_handler
-    # @rate_limiter_manager.limit(times=3, seconds=10)
-    # @require_auth
-    # async def delete_user_upload(upload_id: uuid.UUID):
-    #     current_user: User = await get_current_user(request)
-    #     async with get_db_async() as db:
-    #         return await UploadService(db).delete_upload(upload_id, current_user)
+    @staticmethod
+    @router.delete("/converted/<converted_id>/delete")
+    @tag(["File Uploads"])
+    @safe_handler
+    @rate_limiter_manager.limit(times=3, seconds=10)
+    @require_auth
+    async def delete_converted_images(converted_id: str):
+        current_user: User = await get_current_user(request)
+        async with get_db_async() as db:
+            return await ConvertedService(db).delete_converted(uuid.UUID(converted_id), current_user)

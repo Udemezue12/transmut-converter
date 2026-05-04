@@ -3,6 +3,7 @@ import tasks.cleanup_media_files
 import tasks.convert_media
 import tasks.delete_blacklisted_tokens
 import tasks.send_email
+import tasks.cloudinary_delete_tasks
 from celery import Celery
 from celery.schedules import crontab
 from core.settings import settings

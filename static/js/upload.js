@@ -17,8 +17,6 @@ let fileList = [],
   selectedFormats = {},
   detectionDone = false;
 
-
-
 function getExt(fn) {
   return (
     ((fn || "").split(".").pop() || "").toUpperCase().slice(0, 6) || "FILE"
@@ -358,7 +356,6 @@ async function uploadAndDetect() {
   }
 }
 
-
 async function proceedToConversion() {
   // ✅ validation
   const missing = detectedData.findIndex(
@@ -391,12 +388,10 @@ async function proceedToConversion() {
 
     showToast("All conversions completed", "success");
 
-    
     await downloadQueue(completedFiles, showToast);
 
     showToast("All downloads completed", "success");
 
-    
     handleRedirectAfterDownload();
   } catch (err) {
     overlay.classList.remove("show");
