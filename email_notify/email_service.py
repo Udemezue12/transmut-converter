@@ -11,6 +11,7 @@ from typing import Optional
 from core.email_breaker import email_breaker as breaker
 from core.settings import settings
 
+
 BREVO_API_KEY = settings.BREVO_API_KEY
 EMAIL_PASSWORD = settings.EMAIL_PASSWORD
 EMAIL_PORT = settings.EMAIL_PORT
@@ -19,9 +20,6 @@ EMAIL_USE_TLS = settings.EMAIL_USE_TLS
 EMAIL_USER = settings.EMAIL_USER
 FRONTEND_URL = settings.FRONTEND_URL
 CONFIG_ERROR_MESSAGE = "EMAIL_USER and EMAIL_PASSWORD must be configured"
-
-
-BREVO_URL = "https://api.brevo.com/v3/smtp/email"
 
 
 def sync_brevo_send(message, name: Optional[str] = None):
@@ -103,33 +101,21 @@ def sync_brevo_send(message, name: Optional[str] = None):
 
             with httpx.Client(timeout=15) as client:
                 response = client.post(
-                    BREVO_URL, json=payload, headers=headers)
+                    settings.BREVO_URL, json=payload, headers=headers)
 
             if 200 <= response.status_code < 300:
                 return response.json()
 
             elif 400 <= response.status_code < 500:
-
-                print("Brevo Client Error (No Retry)")
-                print("Status:", response.status_code)
-                print("Response:", response.text)
                 return None
-
             else:
-
-                print("Brevo Server Error (Retry Allowed)")
-                print("Status:", response.status_code)
-                print("Response:", response.text)
                 response.raise_for_status()
 
         except httpx.TimeoutException:
-            print("Brevo Timeout Error")
             raise
-
         except httpx.RequestError as e:
             print("Network Error:", str(e))
             raise
-
         except Exception as e:
             print("Unexpected Brevo Error:", str(e))
             raise

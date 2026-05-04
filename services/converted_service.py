@@ -111,10 +111,7 @@ class ConvertedFileService:
                 result_cloudinary_public_id=public_id,
                 error_message=error_message,
                 celery_task_id=celery_task_id,
-
-
-
-
+                resource_type=resource_type
             )
             return {
                 "message": "Successfully uploaded",
@@ -157,7 +154,7 @@ class ConvertedFileService:
         if converted.result_cloudinary_public_id:
             self.tasks_queue.enqueue_cloudinary_delete(
                 str(converted.result_cloudinary_public_id), str(
-                    converted.result_cloudinary_resource_type)
+                    converted.resource_type)
             )
 
         return {"message": "Deleted successfully"}

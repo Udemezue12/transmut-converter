@@ -69,6 +69,7 @@ class ConvertedRepo:
         result_cloudinary_public_id: str,
         result_cloudinary_file_hash: str,
         result_cloudinary_file_url: str,
+        resource_type:str
 
     ):
         try:
@@ -78,6 +79,7 @@ class ConvertedRepo:
                 output_format=output_format,
                 result_cloudinary_file_hash=result_cloudinary_file_hash,
                 result_cloudinary_url=result_cloudinary_file_url,
+                resource_type=resource_type,
                 result_cloudinary_public_id=result_cloudinary_public_id,
                 celery_task_id=celery_task_id,
                 error_message=error_message,
