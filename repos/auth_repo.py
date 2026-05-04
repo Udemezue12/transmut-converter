@@ -24,12 +24,10 @@ class AuthRepo:
         return result.scalar_one_or_none()
 
     async def by_id(self, user_id: str) -> Optional[User]:
-        user_uuid=uuid.UUID(user_id)
+        user_uuid = uuid.UUID(user_id)
         stmt = select(User).where(User.id == user_uuid)
         result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
-
-    
 
     async def get_by_lastName(self, last_name: str) -> User | None:
         result = await self.db.execute(select(User).where(User.last_name == last_name))
@@ -71,7 +69,8 @@ class AuthRepo:
 
     async def update(self, user: User) -> User:
         if user.id is None:
-            raise ValueError("update() called with no ID — use create() instead")
+            raise ValueError(
+                "update() called with no ID — use create() instead")
 
         self.db.add(user)
         return await self._commit_and_refresh(user)
@@ -88,12 +87,11 @@ class AuthRepo:
         except SQLAlchemyError:
             await self.db.rollback()
             raise
+
     async def update_last_login(self, user: User) -> User:
         user.last_login = datetime.utcnow()
         self.db.add(user)
         return await self._commit_and_refresh(user)
-
-    
 
     async def blacklist_token(self, token: str):
         stmt = (
@@ -117,16 +115,19 @@ class AuthRepo:
     async def delete_expired_blacklisted_tokens(self, cutoff: datetime):
         try:
             await self.db.execute(
-                delete(BlacklistedToken).where(BlacklistedToken.blacklisted_on < cutoff)
+                delete(BlacklistedToken).where(
+                    BlacklistedToken.blacklisted_on < cutoff)
             )
             await self.db.commit()
         except SQLAlchemyError:
             await self.db.rollback()
             raise
+
     def sync_delete_expired_blacklisted_tokens(self, cutoff: datetime):
         try:
             self.db.execute(
-                delete(BlacklistedToken).where(BlacklistedToken.blacklisted_on < cutoff)
+                delete(BlacklistedToken).where(
+                    BlacklistedToken.blacklisted_on < cutoff)
             )
             self.db.commit()
         except SQLAlchemyError:

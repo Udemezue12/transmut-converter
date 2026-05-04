@@ -3,7 +3,7 @@ import orjson
 
 class OrjsonDumps:
 
-    def dumps(self,value):
+    def dumps(self, value):
         data = orjson.dumps(value).decode()
         return data
 

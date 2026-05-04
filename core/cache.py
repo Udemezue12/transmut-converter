@@ -56,16 +56,14 @@ class Cache:
         await breaker.call(handler)
 
     async def get(self, key: str) -> Optional[str]:
-       
-            try:
-                value = await self.async_client.get(str(key))
-                return value
 
-            except Exception as e:
-                logger.error("Redis GET error", exc_info=e)
-                return None
+        try:
+            value = await self.async_client.get(str(key))
+            return value
 
-        
+        except Exception as e:
+            logger.error("Redis GET error", exc_info=e)
+            return None
 
     def sync_get(self, key: str) -> Optional[str]:
         try:

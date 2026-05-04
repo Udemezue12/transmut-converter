@@ -19,17 +19,17 @@ ASYNC_DATABASE_URL = settings.ASYNC_DATABASE_URL
 SYNC_DATABASE_URL = settings.SYNC_DATABASE_URL
 
 if not ASYNC_DATABASE_URL:
-    raise ValueError("ASYNC DATABASE_URL is not set in settings")
+    raise ValueError("ASYNC_DATABASE_URL is not set in settings")
 if not SYNC_DATABASE_URL:
-    raise ValueError("SYNC DATABASE_URL is not set in settings")
+    raise ValueError("SYNC_DATABASE_URL is not set in settings")
 
 async_engine: AsyncEngine = create_async_engine(
     ASYNC_DATABASE_URL,
     echo=False,
     pool_pre_ping=True,
 )
-
-sync_engine: SyncEngine = create_sync_engine(SYNC_DATABASE_URL, echo=False,pool_pre_ping=True)
+sync_engine: SyncEngine = create_sync_engine(
+    SYNC_DATABASE_URL, echo=False, pool_pre_ping=True)
 AsyncSessionLocal = async_sessionmaker(
     bind=async_engine,
     class_=AsyncSession,
@@ -45,8 +45,9 @@ SyncSessionLocal = sync_sessionmaker(
     expire_on_commit=False,
 )
 
+
 @synccontextmanager
-def get_db_sync()->SyncSession:
+def get_db_sync() -> SyncSession:
     session = SyncSessionLocal()
     try:
         yield session
@@ -55,13 +56,13 @@ def get_db_sync()->SyncSession:
     finally:
         session.close()
 
+
 @asynccontextmanager
-async def get_db_async()->AsyncSession:
+async def get_db_async() -> AsyncSession:
     session = AsyncSessionLocal()
     try:
         yield session
     except Exception:
-        
         raise
     finally:
         await session.close()

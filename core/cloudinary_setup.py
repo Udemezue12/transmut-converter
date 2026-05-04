@@ -1,14 +1,15 @@
 import asyncio
-import logging
-import httpx
 import hashlib
+import logging
 import time
+from pathlib import Path
+
 import cloudinary
 import cloudinary.api
 import cloudinary.uploader
+import httpx
 from quart import Request, abort
 from werkzeug.exceptions import HTTPException
-from pathlib import Path
 
 from core.settings import settings
 from security.user_generate import user_generate
@@ -35,7 +36,7 @@ class CloudinaryService:
     ) -> dict:
         if not file_path:
             abort(500, "Generated file not found")
-        base_name = Path(original_filename).stem  # alembic
+        base_name = Path(original_filename).stem 
         random_id = user_generate.generate_secure_cloudinary_public_id()
         result = cloudinary.uploader.upload(
             file_path,
@@ -63,10 +64,8 @@ class CloudinaryService:
         if not file_path:
             abort(500, "Generated file not found")
 
-        base_name = Path(original_filename).stem  # alembic
+        base_name = Path(original_filename).stem 
         random_id = user_generate.generate_secure_cloudinary_public_id()
-
-
 
         try:
 
@@ -91,7 +90,7 @@ class CloudinaryService:
         except Exception as e:
             abort(500, f"Signed PDF upload failed: {e}")
 
-    def delete_file(self, public_id: str, resource_type) -> dict:
+    def delete_file(self, public_id: str, resource_type:str) -> dict:
         return cloudinary.uploader.destroy(
             public_id, resource_type=resource_type, invalidate=True
         )
