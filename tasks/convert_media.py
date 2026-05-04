@@ -1,6 +1,5 @@
 
 
-
 import uuid
 from pathlib import Path
 
@@ -17,7 +16,7 @@ from services.bytes_conversion_service import convert_bytes
 from services.converted_service import ConvertedFileService
 from utils.file_detection import get_mime_from_output_format
 
-BASE_URL=settings.BASE_URL
+BASE_URL = settings.BASE_URL
 
 
 @shared_task(
@@ -36,10 +35,11 @@ def convert_task(
     filename: str | None = None,
 ) -> dict:
 
-    if not all([mime, file_type,filename, temp_file_id, output_format, filename]):
-     return {
-        "message": "Missing required fields"
-    }
+    if not all([mime, file_type, filename, temp_file_id, output_format]):
+        return {
+            "message": "Missing required fields"
+        }
+    assert filename is not None
     db = SyncSessionLocal()
     temp_path = Path(temp_file_path)
 
@@ -105,7 +105,7 @@ def convert_task(
 
     except Exception as e:
         temp_path.unlink(missing_ok=True)
-        raise Exception(str(e)) 
+        raise Exception(str(e))
 
     finally:
 
