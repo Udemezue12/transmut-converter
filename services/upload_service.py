@@ -4,14 +4,14 @@ from quart import jsonify
 
 from core.cache import Cache
 from core.cloudinary_setup import CloudinaryService
-from core.hash_file import ComputeFileHash
+from core.hash_file import ComputeHash
 from core.mapper import ORMMapper
 from core.media_settings import TEMP_DIR
 from core.orjson_dumps import orjson_repo
 from core.paginate import PaginatePage
 from core.serialize_response import SerializeResponse
 from models.enums import FileType
-from repos.conversion_repo import ConvertedRepo
+from repos.converted_repo import ConvertedRepo
 from repos.upload_repo import UploadRepo
 from schemas.schema import UserFileUploadSchema
 
@@ -21,7 +21,7 @@ class UploadService:
         self.converted_repo = ConvertedRepo(db)
         self.upload_repo = UploadRepo(db)
         self.cloudinary = CloudinaryService()
-        self.file_hash = ComputeFileHash()
+        self.file_hash = ComputeHash()
         self.cache = Cache()
         self.serialize = SerializeResponse()
         self.paginate = PaginatePage()
@@ -44,8 +44,6 @@ class UploadService:
         await self.cache.set(cache_key, orjson_repo.dumps(result), 3600)
         return schema_obj
 
-    
-
     async def get_user_uploads(self, current_user, page: int = 1, per_page: int = 20):
         if not current_user:
             return jsonify({"error": "Not Authenticated"}), 401
@@ -66,8 +64,6 @@ class UploadService:
         paginated_result = self.paginate.paginate(result, page, per_page)
         await self.cache.set(cache_key,  orjson_repo.dumps(paginated_result), 3600)
         return paginated_result
-
-    
 
     def _get_resource_type(self, detected_mime: str) -> str:
         if detected_mime.startswith("image/"):
@@ -130,10 +126,8 @@ class UploadService:
                 "upload_id": None
             }
 
-    
-
     async def delete_upload(self, upload_id: uuid.UUID, current_user):
-        
+
         if not current_user:
             return jsonify({"error": "Not Authenticated"}), 401
         user_id = current_user.id

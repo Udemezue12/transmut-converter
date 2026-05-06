@@ -18,7 +18,7 @@ port = os.getenv("CELERY_REDIS_PORT")
 class Settings(BaseSettings):
     FLUTTERWAVE_BASE_URL: str = "https://api.flutterwave.com/v3"
     PAYSTACK_BASE_URL: str = "https://api.paystack.co"
-    BREVO_URL = "https://api.brevo.com/v3/smtp/email"
+    BREVO_URL:str = "https://api.brevo.com/v3/smtp/email"
     REDIRECT_URL: str | None = os.getenv("REDIRECT_URL")
     ASYNC_DATABASE_URL: str | None = os.getenv("ASYNC_DATABASE_URL")
     ENV:str | None = os.getenv("ENV")

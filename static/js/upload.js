@@ -403,7 +403,7 @@ async function checkAuth() {
   try {
     const resp = await fetch("/api/v1/auth/me", {
       credentials: "include",
-      "X-CSRFToken": await getCSRFToken(),
+      "X-CSRF-Token": await getCSRFToken(),
     });
 
     return resp.ok;

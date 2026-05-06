@@ -4,7 +4,6 @@ const params = new URLSearchParams(window.location.search);
 let token = params.get("token");
 let emailParam = params.get("email");
 
-
 if (!emailParam || emailParam.trim() === "") {
   emailParam = null;
 }
@@ -44,7 +43,7 @@ async function autoVerify(tokenValue) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": await getCSRFToken(),
+        "X-CSRF-Token": await getCSRFToken(),
       },
       //   credentials: "include",
       body: JSON.stringify({ token: tokenValue }),
@@ -89,7 +88,7 @@ verifyBtn.onclick = async () => {
       method: "POST",
 
       headers: {
-        "X-CSRFToken": await getCSRFToken(),
+        "X-CSRF-Token": await getCSRFToken(),
         "Content-Type": "application/json",
       },
       //credentials: "include",
@@ -123,7 +122,7 @@ sendResendBtn.onclick = async () => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": await getCSRFToken(),
+        "X-CSRF-Token": await getCSRFToken(),
       },
       body: JSON.stringify({ email: userEmail }),
     });

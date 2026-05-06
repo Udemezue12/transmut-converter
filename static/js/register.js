@@ -6,7 +6,6 @@ const bar = document.getElementById("strength-bar");
 const lbl = document.getElementById("strength-label");
 const matchEl = document.getElementById("confirm-match");
 
-
 pwInput.addEventListener("input", function () {
   const val = this.value;
   if (!val) {
@@ -36,7 +35,6 @@ pwInput.addEventListener("input", function () {
   checkConfirm();
 });
 
-
 function checkConfirm() {
   if (!cfInput.value) return;
   matchEl.style.display = "block";
@@ -54,7 +52,6 @@ function checkConfirm() {
 }
 cfInput.addEventListener("input", checkConfirm);
 
-
 document.querySelectorAll("input").forEach((inp) => {
   inp.addEventListener("focus", () => {
     inp
@@ -69,7 +66,6 @@ document.querySelectorAll("input").forEach((inp) => {
       ?.style.setProperty("color", "var(--ink-4)");
   });
 });
-
 
 document
   .getElementById("register-form")
@@ -109,7 +105,7 @@ document
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": await getCSRFToken(),
+          "X-CSRF-Token": await getCSRFToken(),
         },
         body: JSON.stringify(payload),
       });

@@ -17,7 +17,8 @@ class ConvertedRepo:
         result = await self.db.execute(
             select(Conversion)
             .join(Conversion.upload)
-            .where(Upload.user_id == user_id, Conversion.id == converted_id)
+            .where(Upload.user_id == user_id, Conversion.id == converted_id, Conversion.deleted_at.is_(None),  # Upload.deleted_at.is_(None),
+                   )
             .options(selectinload(Conversion.upload))
         )
         return result.scalar_one_or_none()
@@ -26,7 +27,8 @@ class ConvertedRepo:
         result = self.db.execute(
             select(Conversion)
             .join(Conversion.upload)
-            .where(Upload.user_id == user_id, Conversion.upload_id == upload_id)
+            .where(Upload.user_id == user_id, Conversion.upload_id == upload_id, Conversion.deleted_at.is_(None),  # Upload.deleted_at.is_(None),
+                   )
             .options(selectinload(Conversion.upload))
         )
         return result.scalar_one_or_none()
@@ -37,7 +39,8 @@ class ConvertedRepo:
         result = await self.db.execute(
             select(Conversion)
             .join(Conversion.upload)
-            .where(Upload.user_id == user_id, Conversion.upload_id == upload_id)
+            .where(Upload.user_id == user_id, Conversion.upload_id == upload_id, Conversion.deleted_at.is_(None),  # Upload.deleted_at.is_(None),
+                   )
             .options(selectinload(Conversion.upload))
             .order_by(Conversion.completed_at.desc())
             .offset((page - 1) * per_page)
@@ -69,7 +72,7 @@ class ConvertedRepo:
         result_cloudinary_public_id: str,
         result_cloudinary_file_hash: str,
         result_cloudinary_file_url: str,
-        resource_type:str
+        resource_type: str
 
     ):
         try:

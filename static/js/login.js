@@ -1,6 +1,5 @@
 import { getCSRFToken } from "./csrf.js";
 
-
 const pwInput = document.getElementById("password");
 const toggleBtn = document.getElementById("toggle-pw-btn");
 let pwShown = false;
@@ -26,7 +25,6 @@ document.querySelectorAll("input").forEach((inp) => {
   );
 });
 
-
 function shakeForm() {
   document
     .getElementById("login-form")
@@ -42,7 +40,6 @@ function shakeForm() {
     );
 }
 
-
 document
   .getElementById("login-form")
   .addEventListener("submit", async function (e) {
@@ -54,7 +51,6 @@ document
     const arrow = btn.querySelector(".btn-arrow");
     const respEl = document.getElementById("auth-response");
 
-    
     btn.disabled = true;
     btnText.textContent = "Signing in…";
     spinner.classList.add("active");
@@ -71,7 +67,7 @@ document
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": await getCSRFToken(),
+          "X-CSRF-Token": await getCSRFToken(),
         },
         body: JSON.stringify(payload),
       });
@@ -79,7 +75,6 @@ document
       if (res.ok) {
         const data = await res.json();
 
-        
         if (data.user) {
           localStorage.setItem("transmute_user", JSON.stringify(data.user));
         }

@@ -39,12 +39,6 @@ function enableBtn(btn) {
   btn.innerHTML = btn.dataset.original;
 }
 
-
-
-
-
-
-
 async function verifyEmail() {
   hideMessage(msgBox);
 
@@ -60,7 +54,7 @@ async function verifyEmail() {
     const res = await fetch("/api/v1/auth/verify-email", {
       method: "POST",
       headers: {
-        "X-CSRFToken": await getCSRFToken(),
+        "X-CSRF-Token": await getCSRFToken(),
         "Content-Type": "application/json",
       },
       credentials: "include",
@@ -70,7 +64,10 @@ async function verifyEmail() {
     const data = await res.json();
 
     if (!resp.ok) {
-      showMessage(msgBox, data.description || data.error || "Verification failed");
+      showMessage(
+        msgBox,
+        data.description || data.error || "Verification failed",
+      );
       return;
     }
 
@@ -80,7 +77,6 @@ async function verifyEmail() {
     setTimeout(() => {
       window.location.href = window.APP_CONFIG.loginUrl;
     }, 1500);
-
   } catch (err) {
     showMessage(msgBox, "Network error. Try again.");
   } finally {
@@ -101,11 +97,10 @@ async function autoVerifyFromToken() {
   disableBtn(verifyBtn, "Verifying...");
 
   try {
-    
     const res = await fetch("/api/v1/auth/verify-email", {
       method: "POST",
       headers: {
-        "X-CSRFToken": await getCSRFToken(),
+        "X-CSRF-Token": await getCSRFToken(),
         "Content-Type": "application/json",
       },
       credentials: "include",
@@ -119,7 +114,6 @@ async function autoVerifyFromToken() {
     setTimeout(() => {
       window.location.href = window.APP_CONFIG.loginUrl;
     }, 1500);
-
   } catch {
     showMessage(msgBox, "Invalid or expired link");
   } finally {
@@ -158,13 +152,13 @@ async function resendVerification() {
 
   try {
     const res = await fetch("/api/v1/auth/resend_verification_email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": await getCSRFToken(),
-          },
-          body: JSON.stringify({ email: email }),
-        });
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRF-Token": await getCSRFToken(),
+      },
+      body: JSON.stringify({ email: email }),
+    });
 
     const data = await res.json();
 
@@ -176,7 +170,6 @@ async function resendVerification() {
     showMessage(modalMsg, data.message);
 
     startCooldown(60); // match backend cooldown
-
   } catch {
     showMessage(modalMsg, "Network error");
   } finally {

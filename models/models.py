@@ -33,7 +33,8 @@ class User(Base):
 
     last_name: Mapped[str] = mapped_column(EncryptedString, nullable=False)
     username: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    email: Mapped[str] = mapped_column(EncryptedString, unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(EncryptedString, nullable=False)
+    email_hash: Mapped[str] = mapped_column(String(64), unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String(255), nullable=False)
     phone_number: Mapped[Optional[str]] = mapped_column(String(20), nullable=True)
     role: Mapped[UserRole] = mapped_column(

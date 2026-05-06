@@ -3,7 +3,7 @@ import uuid
 from quart import Blueprint, request
 from quart_schema import tag, validate_response
 
-from auth_utils.auth_role_permission import require_auth
+from auth_utils.auth_role_permission import require_admin, require_auth
 from core.get_current_user import get_current_user
 from core.get_db import get_db_async
 from core.safe_handler import safe_handler
@@ -48,7 +48,7 @@ class ConvertedRoutes:
 
     @staticmethod
     @router.delete("/converted/<converted_id>/delete")
-    @tag(["File Uploads"])
+    @tag(["Converted File Uploads"])
     @safe_handler
     @rate_limiter_manager.limit(times=3, seconds=10)
     @require_auth

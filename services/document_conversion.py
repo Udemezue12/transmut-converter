@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import re
+import logging
 import tempfile
 from pathlib import Path
 from typing import Callable
@@ -14,6 +15,8 @@ import pdfplumber
 from bs4 import BeautifulSoup
 from docx import Document
 from playwright.sync_api import sync_playwright
+from pdf2docx import Converter
+import pypandoc
 
 from models.enums import OutputFormat
 from utils.acessories import libreoffice_convert
@@ -26,6 +29,11 @@ from utils.templates import (
     html_to_docx_bytes,
     make_epub,
 )
+logger = logging.getLogger(__name__)
+
+
+class DocumentConversionError(Exception):
+    pass
 
 
 class DocumentConverter:
@@ -118,9 +126,70 @@ class DocumentConverter:
         return make_epub(html_body)
 
     @staticmethod
-    def pdf_to_docx(content: bytes) -> bytes:
+    def pdf_to_docx_v1(content: bytes) -> bytes:
         html = DocumentConverter.pdf_to_html(content).decode("utf-8")
         return html_to_docx_bytes(html)
+    @classmethod
+    def pdf_to_docx(cls, content: bytes) -> bytes:
+        
+       
+        try:
+            return cls._pdf_to_docx_pdf2docx(content)
+        except Exception as e:
+            logger.warning(f"[pdf2docx failed] → falling back to HTML route: {e}")
+
+      
+        try:
+            html = cls.pdf_to_html(content).decode("utf-8")
+            return cls.html_to_docx(html)
+        except Exception as e:
+            logger.error(f"[fallback failed] PDF → HTML → DOCX: {e}")
+            raise DocumentConversionError("Failed to convert PDF to DOCX")
+    @staticmethod
+    def _pdf_to_docx_pdf2docx(content: bytes) -> bytes:
+       
+        with tempfile.TemporaryDirectory() as tmp:
+            pdf_path = Path(tmp) / "input.pdf"
+            docx_path = Path(tmp) / "output.docx"
+
+            pdf_path.write_bytes(content)
+
+            cv = Converter(str(pdf_path))
+            try:
+                cv.convert(str(docx_path))
+            finally:
+                cv.close()
+
+            if not docx_path.exists():
+                raise DocumentConversionError("DOCX file not generated")
+
+            return docx_path.read_bytes()
+
+  
+    @staticmethod
+    def html_to_docx(html: str) -> bytes:
+        
+        try:
+
+            
+            try:
+                pypandoc.get_pandoc_path()
+            except OSError:
+                logger.info("Pandoc not found. Downloading...")
+                pypandoc.download_pandoc()
+
+            output = pypandoc.convert_text(
+                html,
+                to="docx",
+                format="html",
+                extra_args=["--quiet"]
+            )
+
+            return output
+
+        except Exception as e:
+            logger.error(f"[pypandoc failed]: {e}")
+            raise DocumentConversionError("HTML → DOCX conversion failed")
 
     @staticmethod
     def html_to_pdf(content: bytes) -> bytes:
@@ -155,7 +224,7 @@ class DocumentConverter:
         return make_epub(body_html)
 
     @staticmethod
-    def html_to_docx(content: bytes) -> bytes:
+    def html_to_docx_v1(content: bytes) -> bytes:
         return html_to_docx_bytes(content.decode("utf-8", errors="replace"))
 
     @staticmethod

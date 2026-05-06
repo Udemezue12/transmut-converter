@@ -2,8 +2,12 @@ from enum import Enum
 
 
 class UserRole(str, Enum):
-    ADMIN = "ADMIN"
+    # ADMIN = "ADMIN"
     USER = "USER"
+
+
+class AdminRole(str, Enum):
+    ADMIN = "ADMIN"
 
 
 class ENVSettings(str, Enum):
@@ -37,14 +41,14 @@ class OutputFormat(str, Enum):
     WEBM = "webm"
     MKV = "mkv"
 
-    PNG  = "png"
-    JPG  = "jpg"
+    PNG = "png"
+    JPG = "jpg"
     JPEG = "jpeg"
     WEBP = "webp"
-    GIF  = "gif"
-    BMP  = "bmp"
+    GIF = "gif"
+    BMP = "bmp"
     TIFF = "tiff"
-    ICO  = "ico"
+    ICO = "ico"
 
     MP3 = "mp3"
     WAV = "wav"
@@ -56,6 +60,6 @@ class TaskStatus(str, Enum):
     FAILED = "FAILED"
     COMPLETED = "COMPLETED"
     PROCESSING = "PROCESSING"
-    STARTED= "STARTED"
+    STARTED = "STARTED"
     FAILURE = "FAILURE"
-    SUCCESS="SUCCESS"
+    SUCCESS = "SUCCESS"

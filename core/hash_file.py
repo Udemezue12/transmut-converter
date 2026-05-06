@@ -4,10 +4,8 @@ import requests
 from quart import abort
 
 
+class ComputeHash:
 
-
-class ComputeFileHash:
-    
     def compute_file_hash_sync(self, file_url: str) -> str:
         try:
             resp = requests.get(file_url, timeout=30)
@@ -18,5 +16,5 @@ class ComputeFileHash:
             abort(400, description="Failed to fetch file")
 
         return hashlib.sha256(resp.content).hexdigest()
-
-    
+    def hash_email(self, email: str) -> str:
+     return hashlib.sha256(email.lower().encode()).hexdigest()

@@ -25,6 +25,7 @@ from security.user_verification import (
 )
 from middleware.csrf_middleware import validate_csrf
 from core.otp_request_check import OTPRequestCheck
+from core.hash_file import ComputeHash
 
 ACCESS_EXPIRE_MINUTES = settings.ACCESS_EXPIRE_MINUTES
 REFRESH_EXPIRE_DAYS = settings.REFRESH_EXPIRE_DAYS
@@ -33,7 +34,8 @@ access_exp = datetime.now(timezone.utc) + timedelta(
     minutes=settings.ACCESS_EXPIRE_MINUTES
 )
 
-refresh_exp = datetime.now(timezone.utc) + timedelta(days=settings.REFRESH_EXPIRE_DAYS)
+refresh_exp = datetime.now(timezone.utc) + \
+    timedelta(days=settings.REFRESH_EXPIRE_DAYS)
 
 
 class AuthService:
@@ -45,6 +47,7 @@ class AuthService:
 
         self.user_verification: UserVerification = UserVerification()
         self.otp_check = OTPRequestCheck()
+        self.hash = ComputeHash()
 
         self.redis_idempotency: RedisIdempotency = RedisIdempotency(
             "auth-service-startup"
@@ -52,36 +55,51 @@ class AuthService:
 
     async def register(self, data):
         async def _handler():
-            name = f"{data.first_name} {data.last_name}"
-            if await self.repo.get_by_email(email=data.email):
+            email = data.email.strip().lower()
+            username = data.username.strip().lower()
+            phone_number = data.phone_number.strip() if data.phone_number else None
+            first_name = data.first_name.strip()
+            last_name = data.last_name.strip()
+
+            full_name = f"{first_name} {last_name}"
+
+            email_hash = self.hash.hash_email(email)
+
+            if await self.repo.get_by_email_hash(email_hash):
                 abort(400, description="Email already registered")
-            if await self.repo.get_by_username(username=data.username):
+
+            if await self.repo.get_by_username(username):
                 abort(400, description="Username already taken")
-            if await self.repo.find_users_by_name_strict(name=name):
-                abort(400, description="User with the same name already exists")
-            if await self.repo.get_by_phoneNumber(phone_number=data.phone_number):
+
+            if phone_number and await self.repo.get_by_phoneNumber(phone_number):
                 abort(400, description="Phone number already taken")
 
+            if await self.repo.find_users_by_name_strict(full_name):
+                abort(400, description="User with the same name already exists")
+
             user = User(
-                username=data.username,
-                email=data.email.strip().lower(),
-                phone_number=data.phone_number,
-                first_name=data.first_name,
-                last_name=data.last_name,
+                username=username,
+                email=email,
+                email_hash=email_hash,
+                phone_number=phone_number,
+                first_name=first_name,
+                last_name=last_name,
                 role=data.role,
                 email_verified=False,
             )
 
             user.set_password(raw_password=data.password)
+
             await self.repo.create(user)
 
-            otp = await user_generate.generate_otp(user.email)
-            token = user_generate.generate_verify_token(user.email)
+            otp = await user_generate.generate_otp(email)
+            token = user_generate.generate_verify_token(email)
+
             task_app.send_task(
                 "send_verify_email_notification",
                 args=[
-                    str(user.phone_number),
-                    str(user.email),
+                    str(phone_number),
+                    str(email),
                     str(otp),
                     str(user.full_name),
                     str(token),
@@ -89,7 +107,7 @@ class AuthService:
             )
 
             return {
-                "message": "Registration successful! Please check your email and sms to verify your account.",
+                "message": "Registration successful! Please verify your email.",
                 "status": 201,
             }
 
@@ -102,15 +120,16 @@ class AuthService:
     async def login(self, data, request: Request):
         async def handler():
             await validate_csrf(request)
+           
             user = await self.repo.get_by_email(data.email)
             if not user or not user.check_password(raw_password=data.password):
                 raise ValueError("Invalid credentials")
 
-            if not user.email_verified:
-                abort(
-                    code=403,
-                    description="Email not verified. Please verify your account to login.",
-                )
+            # if not user.email_verified:
+            #     abort(
+            #         code=403,
+            #         description="Email not verified. Please verify your account to login.",
+            #     )
 
             token_pair = create_token_pair(str(user.id))
             access_token = token_pair.access_token
@@ -217,7 +236,7 @@ class AuthService:
         async def handler():
 
             user = await self.repo.get_by_email(email)
-            retry_after=None
+            retry_after = None
             if user:
                 allowed = await self.otp_check.can_request_otp(user.email)
 
@@ -271,7 +290,7 @@ class AuthService:
     async def forgot_password(self, payload):
         async def handler():
             user = await self.repo.get_by_email(payload.email)
-            retry_after=None
+            retry_after = None
             if user:
                 allowed = await self.otp_check.can_request_otp(user.email)
 

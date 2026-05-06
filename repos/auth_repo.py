@@ -5,13 +5,14 @@ from typing import Optional
 from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import SQLAlchemyError
-
+from core.hash_file import ComputeHash
 from models.models import BlacklistedToken, User
 
 
 class AuthRepo:
     def __init__(self, db):
         self.db = db
+        self.hash = ComputeHash()
 
     async def get_by_username(self, username: str) -> User | None:
         result = await self.db.execute(select(User).where(User.username == username))
@@ -21,6 +22,11 @@ class AuthRepo:
         result = await self.db.execute(
             select(User).where(User.first_name == first_name)
         )
+        return result.scalar_one_or_none()
+    async def get_by_email_hash(self, email_hash: str):
+        email_payload = email_hash.strip().lower()
+        stmt = select(User).where(User.email_hash == email_payload)
+        result = await self.db.execute(stmt)
         return result.scalar_one_or_none()
 
     async def by_id(self, user_id: str) -> Optional[User]:
@@ -35,7 +41,8 @@ class AuthRepo:
 
     async def get_by_email(self, email: str) -> Optional[User]:
         email_payload = email.strip().lower()
-        result = await self.db.execute(select(User).where(User.email == email_payload))
+        email_hash = self.hash.hash_email(email_payload)
+        result = await self.db.execute(select(User).where(User.email_hash == email_hash))
         return result.scalar_one_or_none()
 
     async def get_by_phoneNumber(self, phone_number: str) -> User | None:

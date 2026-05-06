@@ -5,6 +5,9 @@ FRIENDLY_MESSAGES = {
     "ValueError": "Invalid data received. Please check your input and try again.",
     "KeyError": "Some required information is missing.",
     "PermissionError": "You don’t have permission to perform this action.",
+    "ValidationError": "Invalid data upon submission. Please review your input and try again.",
+    "FileNotFoundError": "The requested file was not found. It may have been moved or deleted."
+    
 }
 
 

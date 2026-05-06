@@ -4,13 +4,13 @@ from quart import jsonify
 
 from core.cache import Cache
 from core.cloudinary_setup import CloudinaryService
-from core.hash_file import ComputeFileHash
+from core.hash_file import ComputeHash
 from core.mapper import ORMMapper
 from core.orjson_dumps import orjson_repo
 from core.paginate import PaginatePage
 from core.serialize_response import SerializeResponse
 from models.enums import ConversionStatus, OutputFormat
-from repos.conversion_repo import ConvertedRepo
+from repos.converted_repo import ConvertedRepo
 from repos.upload_repo import UploadRepo
 from schemas.schema import UserFileConvertedUploadSchema
 
@@ -24,7 +24,7 @@ class ConvertedFileService:
         self.converted_repo = ConvertedRepo(db)
         self.upload_repo = UploadRepo(db)
         self.cloudinary = CloudinaryService()
-        self.file_hash = ComputeFileHash()
+        self.file_hash = ComputeHash()
         self.cache = Cache()
         self.serialize = SerializeResponse()
         self.paginate = PaginatePage()
@@ -39,11 +39,11 @@ class ConvertedFileService:
 
         if cached:
             return orjson_repo.loads(cached)
-        upload = await self.converted_repo.get_user_conversion(user_id, converted_id)
+        converted = await self.converted_repo.get_user_conversion(user_id, converted_id)
 
-        if not upload:
-            return jsonify({"error": "Upload not found"}), 404
-        schema_obj = self.mapper.one(upload, UserFileConvertedUploadSchema)
+        if not converted:
+            return jsonify({"error": "File not found"}), 404
+        schema_obj = self.mapper.one(converted, UserFileConvertedUploadSchema)
         result = self.serialize.get_single_json_dumps(schema_obj)
         await self.cache.set(cache_key, orjson_repo.dumps(result), 3600)
         return schema_obj
@@ -55,7 +55,6 @@ class ConvertedFileService:
         cache_key = f"user_conversions:{user_id}:{page}:{per_page}"
         cached = await self.cache.get(cache_key)
         if cached:
-            print(f"Cached::{cached}")
             return orjson_repo.loads(cached)
         uploads = await self.converted_repo.get_all_user_file_conversions(user_id, page, per_page)
 

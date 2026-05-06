@@ -54,10 +54,12 @@ def safe_handler(func: Callable) -> Callable:
                     "[HTTPException] func=%(func)s | %(status)s",
                     {**ctx, "status": f"{exc.code}"},
                 )
-            # Return JSON instead of letting Quart render the HTML error page
-            return jsonify({"detail": exc.description}), exc.code
+            friendly = get_friendly_message(exc)
 
-        except Exception as exc:  # noqa: BLE001
+           
+            return jsonify({"detail": friendly}), exc.code
+
+        except Exception as exc:  
             if req:
                 logger.error(
                     "[UnhandledError] TraceID=%(trace_id)s | func=%(func)s | "
@@ -73,7 +75,7 @@ def safe_handler(func: Callable) -> Callable:
                 )
 
             friendly = get_friendly_message(exc)
-            # Return a 500 JSON response directly — never raise an HTMLException
+          
             return jsonify({"detail": friendly}), 500
 
     return wrapper

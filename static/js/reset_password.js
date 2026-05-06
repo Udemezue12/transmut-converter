@@ -1,6 +1,5 @@
 import { getCSRFToken } from "./csrf.js";
 
-
 function showResponse(message, ok = true) {
   const el = document.getElementById("auth-response");
   if (!el) return;
@@ -80,8 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-CSRFToken": await getCSRFToken(),
-
+          "X-CSRF-Token": await getCSRFToken(),
         },
         credentials: "include",
         body: JSON.stringify(payload),
@@ -95,11 +93,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
       showResponse(data.message || "Password reset successful", true);
 
-      
       setTimeout(() => {
         window.location.href = window.APP_CONFIG?.loginUrl || "/login";
       }, 1500);
-
     } catch (err) {
       showResponse(err.message || "Something went wrong", false);
     } finally {
