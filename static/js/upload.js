@@ -411,30 +411,30 @@ async function checkAuth() {
     return false;
   }
 }
-// async function toggleAuthUI() {
-//   const isLoggedIn = await checkAuth();
+async function toggleAuthUI() {
+  const isLoggedIn = await checkAuth();
 
-//   const loginLink = document.getElementById("loginLink");
-//   const signupLink = document.getElementById("signupLink");
-//   const logoutLink = document.getElementById("logoutLink");
-//   const myFilesLink = document.getElementById("myFilesLink");
+  const loginLink = document.getElementById("loginLink");
+  const signupLink = document.getElementById("signupLink");
+  const logoutLink = document.getElementById("logoutLink");
+  const myFilesLink = document.getElementById("myFilesLink");
 
-//   if (isLoggedIn) {
-//     loginLink.style.display = "none";
-//     signupLink.style.display = "none";
+  if (isLoggedIn) {
+    loginLink.style.display = "none";
+    signupLink.style.display = "none";
 
-//     logoutLink.style.display = "inline-flex";
-//     myFilesLink.style.display = "inline-flex";
-//   } else {
-//     loginLink.style.display = "inline-flex";
-//     signupLink.style.display = "inline-flex";
+    logoutLink.style.display = "inline-flex";
+    myFilesLink.style.display = "inline-flex";
+  } else {
+    loginLink.style.display = "inline-flex";
+    signupLink.style.display = "inline-flex";
 
-//     logoutLink.style.display = "none";
-//     myFilesLink.style.display = "none";
-//   }
-// }
+    logoutLink.style.display = "none";
+    myFilesLink.style.display = "none";
+  }
+}
 document.addEventListener("DOMContentLoaded", async () => {
-  // await toggleAuthUI();
+  await toggleAuthUI();
 
   document.getElementById("fileQueue").addEventListener("click", (e) => {
     if (e.target.classList.contains("fmt-btn")) {

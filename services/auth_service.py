@@ -119,7 +119,7 @@ class AuthService:
 
     async def login(self, data, request: Request):
         async def handler():
-            await validate_csrf(request)
+            # await validate_csrf(request)
            
             user = await self.repo.get_by_email(data.email)
             if not user or not user.check_password(raw_password=data.password):

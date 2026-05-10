@@ -21,11 +21,11 @@ async def validate_csrf(request: Request):
     cookie_token = request.cookies.get("csrf_token")
     header_token = request.headers.get("X-CSRF-Token")
 
-    # if not (session_token and cookie_token and header_token):
-    #     return jsonify({"error": "Missing CSRF token"}), 403
+    if not (session_token and cookie_token and header_token):
+        return jsonify({"error": "Missing CSRF token"}), 403
 
-    # if header_token != cookie_token:
-    #     return jsonify({"error": "CSRF token mismatch"}), 403
+    if header_token != cookie_token:
+        return jsonify({"error": "CSRF token mismatch"}), 403
 
     if session_token != cookie_token:
         return jsonify({"error": "Invalid CSRF token"}), 403

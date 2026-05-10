@@ -26,8 +26,8 @@
         <div class="logo">trans<span>mute</span></div>
         <div class="header-right">
           
-          <!-- <a href="{{ url_for('Templates.login') }}" class="nav-link" id="loginLink">Log in</a>
-          <a href="{{ url_for('Templates.register') }}" class="nav-link primary" id="signupLink">Sign up free</a> -->
+          <a href="{{ url_for('Templates.login') }}" class="nav-link" id="loginLink">Log in</a>
+          <a href="{{ url_for('Templates.register') }}" class="nav-link primary" id="signupLink">Sign up free</a>
 
           
           <a href="{{ url_for('Templates.files') }}" class="nav-link" id="myFilesLink" style="display:none;">My Files</a>
@@ -68,14 +68,7 @@
           </svg>
           Clear all
         </button>
-        <!-- <button class="btn btn-primary" id="detectBtn" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-            stroke-linejoin="round" width="16" height="16">
-            <circle cx="11" cy="11" r="8" />
-            <path d="M21 21l-4.35-4.35" />
-          </svg>
-          Detect Formats
-        </button> -->
+      
       </div>
       <div class="proceed-bar" id="proceedBar">
         <button class="btn btn-success" id="proceedBtn" disabled>
@@ -104,7 +97,7 @@
     </div>
     <script>
       window.APP_CONFIG = {
-        //loginUrl: "{{ url_for('Templates.login') }}",
+        loginUrl: "{{ url_for('Templates.login') }}",
         downloadUrl: "{{ url_for('Templates.download') }}",
         homeUrl: "{{ url_for('Templates.index') }}"
       };

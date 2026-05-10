@@ -5,6 +5,7 @@ from core.lifespan import LifespanService
 from core.quart_cache_settings import QuartCache
 from core.settings import settings
 from middleware.csrf_middleware import register_csrf_middleware
+from core.cors import QuartCors
 from middleware.register_auth_middleware import register_middleware
 from routes.auth_routes import AuthRoutes
 from routes.conversion_routes import ConversionRoutes
@@ -19,7 +20,7 @@ app = Quart(__name__, static_folder='static',
             static_url_path='/static',
             template_folder='templates')
 
-app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024 
+app.config["MAX_CONTENT_LENGTH"] = 500 * 1024 * 1024
 app.config["MAX_FORM_MEMORY_SIZE"] = 500 * 1024 * 1024
 app.config["BODY_TIMEOUT"] = 300
 app.config["TEMPLATES_AUTO_RELOAD"] = True
@@ -38,6 +39,7 @@ QuartSchema(
 LifespanService(app)
 register_csrf_middleware(app)
 register_middleware(app)
+QuartCors(app)
 QuartCache(app)
 ErrorHandlers(app)
 CsrfTokenRoutes.register_route(app)
