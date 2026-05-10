@@ -23,6 +23,7 @@
 /file_convert_env/
 .env
 astro.db
+astrooo.db
 celerybeat-schedule
 celerybeat-schedule-shm
 celerybeat-schedule-wal
